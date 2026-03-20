@@ -27,6 +27,8 @@ nd_dir = [data_dir filesep() 'nodes'];
 tp_dir = [data_dir filesep() 'time_points'];
 ns_dir = [data_dir  filesep() 'noise'];
 ref_dir = [data_dir  filesep() 'rereference'];
+cp_dir = [data_dir  filesep() 'comm_prob'];
+
 
 if ~exist(nd_dir, 'dir')
     mkdir(nd_dir);
@@ -42,6 +44,11 @@ end
 
 if ~exist(ref_dir, 'dir')
     mkdir(ref_dir);
+end
+
+
+if ~exist(cp_dir, 'dir')
+    mkdir(cp_dir);
 end
 
 % ========================================================================
@@ -139,6 +146,37 @@ for snr_est = [50 10 5 1 0.5 0.1 0.05 0.01]
 
             disp(['For SNR = ' num2str(snr_est) ' in iter ' num2str(iter,'%03.f') ', ' num2str(reps) ' steps were required for it to converge'])
             save([cwd filesep() 'orig_data'], 'tcoup', 'ts', 'snr_est', 'noise_sig', 'true_snr');
+            save([cwd filesep() 'reps2gen'], 'reps');
+        end
+    end
+end
+
+%% ========================================================================
+
+% STEP 4: Generate models for connection probability
+
+for conn_prob = [0.05, 0.1, 0.2, 0.4, 0.6, 0.8, 1]
+    for iter = 1:100
+        cwd = [cp_dir filesep() num2str(conn_prob) filesep() num2str(iter,'%03.f') filesep() 'orig'];
+        if ~exist(cwd, 'dir')
+            mkdir(cwd);
+        end
+        
+        if ~exist([cwd filesep() 'orig_data.mat'], 'file')
+            disp(['Making data for commProb = ' num2str(conn_prob) ', repetition ' num2str(iter,'%03.f')])
+            
+            % generate model
+           [tcoup, A, ts, ~, ~, whenConn] = gen_model2(def_nd,10,def_tp,0.1,0.1,def_dns,def_mns, conn_prob);
+            
+            reps = 1;
+            while max(ts, [], 'all') > 10
+                [tcoup, A, ts, ~, ~, whenConn] = gen_model2(def_nd,10,def_tp,0.1,0.1,def_dns,def_mns,conn_prob);
+                reps = reps + 1;
+            end
+            ts = transpose(ts);
+
+            disp(['For commProb = ' num2str(conn_prob) ' in iter ' num2str(iter,'%03.f') ', ' num2str(reps) ' steps were required for it to converge'])
+            save([cwd filesep() 'orig_data'], 'tcoup', 'ts', 'whenConn');
             save([cwd filesep() 'reps2gen'], 'reps');
         end
     end

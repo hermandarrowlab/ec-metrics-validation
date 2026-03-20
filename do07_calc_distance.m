@@ -90,7 +90,7 @@ end
 
 % STEP 4: iterate over nodes - no node dropping
 
-for opt = ["nodes", "time_points", "noise"] %, "rereference"
+for opt = ["comm_prob"]; %"nodes", "time_points", "noise"] %, "rereference"
     % set base directory
     var_dir = [data_dir filesep() convertStringsToChars(opt)];
 
@@ -100,6 +100,8 @@ for opt = ["nodes", "time_points", "noise"] %, "rereference"
         cycle = [500, 1000, 5000, 10000];
     elseif strcmp(opt,'noise')
         cycle = [0.01, 0.05 0.1 0.5 1 5 10 50];
+    elseif strcmp(opt,'comm_prob')
+        cycle = [0.05 0.1 0.2, 0.4, 0.6, 0.8, 1];
     elseif strcmp(opt,'rereference')
         cycle = ["cmn_avg", "hrdwr_ref", "random"];
     end

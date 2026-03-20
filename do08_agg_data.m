@@ -28,6 +28,8 @@ nd_dir = [data_dir filesep() 'nodes'];
 tp_dir = [data_dir filesep() 'time_points'];
 ns_dir = [data_dir  filesep() 'noise'];
 rr_dir = [data_dir filesep() 'rereference'];
+pc_dir = [data_dir filesep() 'comm_prob'];
+
 agg_dir = [data_dir filesep() 'agg'];
 
 if ~exist(agg_dir, 'dir')
@@ -246,6 +248,65 @@ noise_num_iters = squeeze(noise_num_iters(:,:,:,1));
 % STEP 8: save out data 
 
 save([agg_dir filesep() 'noise_all_dist.mat'], 'noise_cos_dist', 'noise_num_iters', 'labels', 'noise_opts', 'pcts', 'dim_order')
+
+
+% ========================================================================
+
+%% PROBABILITY OF COMMUNICATION DATA
+
+% ========================================================================
+
+disp('Working on PCOMM Data')
+
+% STEP 1: set labels for dimension orders
+
+pcomm_opts = [0.05, 0.1, 0.2, 0.4, 0.6, 0.8, 1];
+
+% -------------------------------------------------------------------------
+
+% STEP 2: instantiate arrays
+
+pcomm_cos_dist = NaN(length(pcomm_opts), 100, 10, num_metrics);
+
+% -------------------------------------------------------------------------
+
+% STEP 3: iterate over noise opts without node dropping
+
+j=1;
+for opt = pcomm_opts;
+    i=1;
+    for lett = 1:100
+        lett_str = num2str(lett,'%03.f');
+        wdir = [pc_dir filesep() num2str(opt) filesep() lett_str];
+    
+% -------------------------------------------------------------------------
+    
+% STEP 4: load data and assign to arrays 
+        outdir = [wdir filesep() cosdst_flder];
+        if exist([outdir filesep() 'cos_dist.mat'], 'file')
+            %disp(['Missing: ' num2str(opt) ' ' lett_str])
+        %else
+            disp([num2str(opt) ' ' lett_str])
+
+            % load data with function 
+            [pcomm_cos_dist(j,lett,1,:), labels] = load_data(outdir);
+        end    
+    end
+    j = j+1;
+end
+
+% -------------------------------------------------------------------------
+
+% STEP 7: get number of values in each group for visualization
+
+pcomm_num_iters = sum(~isnan(pcomm_cos_dist),2);
+pcomm_num_iters = squeeze(pcomm_num_iters(:,:,:,1));
+
+% -------------------------------------------------------------------------
+
+% STEP 8: save out data 
+
+save([agg_dir filesep() 'pcomm_all_dist.mat'], 'pcomm_cos_dist', 'pcomm_num_iters', 'labels', 'pcomm_opts', 'pcts', 'dim_order')
 
 % ========================================================================
 

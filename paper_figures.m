@@ -103,7 +103,7 @@ plot(ts(1,1:nd_end), 'LineWidth', lw, 'Color', [colors(3,:)])
 plot(ts(6,1:nd_end), 'LineWidth', lw, 'Color', [colors(7,:)])
 legend(["Node 1", "Node 6"])
 xlabel('Time (samples)')
-ylabel('Amplitude')
+ylabel('Amplitude (AU)')
 ylim([-0.12, 0.12])
 title('Coupled Nodes')
 ax = gca;
@@ -116,7 +116,7 @@ plot(ts(7,1:nd_end), 'Linewidth',lw, 'Color', [colors(5,:)])
 legend(["Node 1", "Node 7"])
 xlabel('Time (samples)')
 ylim([-0.12, 0.12])
-ylabel('Amplitude')
+ylabel('Amplitude (AU)')
 title('Uncoupled Nodes')
 ax = gca;
 ax.FontSize=16;
@@ -200,10 +200,17 @@ for i = 2:size(arrs,1)
 
     pct2 = prctile(arrs(i,:,:), 2, 'all');
     pct98 = prctile(arrs(i,:,:), 98, 'all');
-    if i<11
+    %if i<11
         clim([pct2 pct98])
-    else
-        clim([0 1])
+    %else
+        %clim([0 1])
+    %end
+
+    if i == 2 || i == 7
+        ylabel("Source Node")
+    end
+    if i >= 7
+        xlabel("Receiver Node")
     end
 
     text(-2.2,0.7,[figLabs(i) ')'], 'FontSize', 20)
@@ -217,8 +224,8 @@ exportgraphics(gcf, [fig_dir filesep() '03.samp_recons.eps'], 'ContentType', 've
 
 % Figure 4 - number of nodes by metric
 
-cwd = [data_dir filesep() 'agg'];
-load([cwd filesep() 'nodes_all_dist.mat'])
+cwd = [data_dir filesep 'agg'];
+load([cwd filesep 'nodes_all_dist.mat'])
 nodes_alpha = 0.05/15;
 
 makeFig_byMetric(nodes_cos_dist, nodes_opts, nodes_alpha, 'Number of Nodes', 'Cosine Distance')
@@ -226,16 +233,30 @@ saveas(gcf, [fig_dir filesep() '04.1_nodes_by_metrics.jpg'])
 exportgraphics(gcf, [fig_dir filesep() '04.1_nodes_by_metrics.eps'], 'ContentType', 'vector')
 %
 % Alt Figure 4 - number of nodes by bin of nodes
-makeFig_byParam(nodes_cos_dist, nodes_opts, nodes_alpha, 'Metrics', 'Cosine Distance', 'Nodes')
+makeFig_byParam(nodes_cos_dist, nodes_opts, nodes_alpha, '', 'Cosine Distance', 'Nodes')
 saveas(gcf, [fig_dir filesep() '04.2_methods_by_nodes.jpg'])
 exportgraphics(gcf, [fig_dir filesep() '04.2_methods_by_nodes.eps'], 'ContentType', 'vector')
 
-%%
-% STATS
+%% STATS
 
 clc
 cprintf('red', 'Nodes by Cosine Distance \n')
 doStats(nodes_cos_dist, nodes_opts, nodes_alpha, 'Nodes')
+
+%% ROC 
+
+cwd = [data_dir filesep 'roc'];
+load([cwd filesep 'nodes_roc.mat'])
+nodes_alpha = 0.05/15;
+
+% ROC Figure 4 - number of nodes by metric
+makeFig_byMetric(nodes_roc_aucs, nodes_opts, nodes_alpha, 'Number of Nodes', 'AUC of ROC')
+saveas(gcf, [fig_dir filesep '04.3_nodes_roc_by_metrics.jpg'])
+exportgraphics(gcf, [fig_dir filesep '04.3_nodes_roc_by_metrics.eps'], 'ContentType', 'vector')
+
+clc
+cprintf('red', 'Nodes ROCs by Cosine Distance \n')
+doStats(nodes_roc_aucs, nodes_opts, nodes_alpha, 'Nodes')
 
 %% ========================================================================
 
@@ -250,7 +271,7 @@ saveas(gcf, [fig_dir filesep() '05.1_tps_by_methods.jpg'])
 exportgraphics(gcf, [fig_dir filesep() '05.1_tps_by_methods.eps'], 'ContentType', 'vector')
 
 % Alt Figure 5 - number of time points by time points bin
-makeFig_byParam(tps_cos_dist, tps_opts, tps_alpha, 'Metrics', 'Cosine Distance', 'Time Points')
+makeFig_byParam(tps_cos_dist, tps_opts, tps_alpha, '', 'Cosine Distance', 'Time Points')
 saveas(gcf, [fig_dir filesep() '05.2_methods_by_tps.jpg'])
 exportgraphics(gcf, [fig_dir filesep() '05.2_methods_by_tps.eps'], 'ContentType', 'vector')
 
@@ -260,12 +281,27 @@ clc
 cprintf('red', 'Time Points by Cosine Distance \n')
 doStats(tps_cos_dist, tps_opts, tps_alpha, 'Time Points')
 
+%% ROC
+
+cwd = [data_dir filesep 'roc'];
+load([cwd filesep 'tps_roc.mat'])
+tps_alpha = 0.05/14;
+
+makeFig_byMetric(tps_roc_aucs,tps_opts, tps_alpha, 'Number of Time Points', 'AUC of ROC')
+saveas(gcf, [fig_dir filesep '05.3_tps_roc_by_metrics.jpg'])
+exportgraphics(gcf, [fig_dir filesep '05.3_tps_roc_by_metrics.eps'], 'ContentType', 'vector')
+
+% stats
+clc
+cprintf('red', 'Time Points by Cosine Distance \n')
+doStats(tps_roc_aucs, tps_opts, tps_alpha, 'Time Points')
+
 %% ========================================================================
 
 % Figure 6 - noise by metric
 
-cwd = [data_dir filesep() 'agg'];
-load([cwd filesep() 'noise_all_dist.mat'])
+cwd = [data_dir filesep 'agg'];
+load([cwd filesep 'noise_all_dist.mat'])
 noise_alpha = 0.05/18;
 
 makeFig_byMetric(noise_cos_dist,noise_opts, noise_alpha, 'SNR', 'Cosine Distance')
@@ -273,7 +309,7 @@ saveas(gcf, [fig_dir filesep() '06.1_noise_by_methods.jpg'])
 exportgraphics(gcf, [fig_dir filesep() '06.1_noise_by_methods.eps'], 'ContentType', 'vector')
 
 % Alt Figure 6 - noise by SNR bin
-makeFig_byParam(noise_cos_dist, noise_opts, noise_alpha, 'Metrics', 'Cosine Distance', 'SNR')
+makeFig_byParam(noise_cos_dist, noise_opts, noise_alpha, '', 'Cosine Distance', 'SNR')
 saveas(gcf, [fig_dir filesep() '06.2_methods_by_noise.jpg'])
 exportgraphics(gcf, [fig_dir filesep() '06.2_methods_by_noise.eps'], 'ContentType', 'vector')
 
@@ -282,6 +318,44 @@ exportgraphics(gcf, [fig_dir filesep() '06.2_methods_by_noise.eps'], 'ContentTyp
 clc
 cprintf('red', 'Noise by Cosine Distance \n')
 doStats(noise_cos_dist, noise_opts, noise_alpha, 'SNR')
+
+%% ROC
+
+cwd = [data_dir filesep 'roc'];
+load([cwd filesep 'noise_roc.mat'])
+noise_alpha = 0.05/18;
+
+makeFig_byMetric(noise_roc_aucs,noise_opts, noise_alpha, 'SNR', 'AUC of ROC')
+saveas(gcf, [fig_dir filesep '06.3_noise_roc_by_metrics.jpg'])
+exportgraphics(gcf, [fig_dir filesep() '06.3_noise_roc_by_metrics.eps'], 'ContentType', 'vector')
+
+%% stats
+clc
+cprintf('red', 'Noise by Cosine Distance \n')
+doStats(noise_roc_aucs, noise_opts, noise_alpha, 'SNR')
+
+%% ========================================================================
+
+% Figure 9 - probability of communication by metric
+
+cwd = [data_dir filesep() 'agg'];
+load([cwd filesep() 'pcomm_all_dist.mat'])
+pcomm_alpha = 0.05/15;
+
+makeFig_byMetric(pcomm_cos_dist,pcomm_opts, pcomm_alpha, 'SNR', 'Cosine Distance')
+saveas(gcf, [fig_dir filesep() '09.1_pcomm_by_methods.jpg'])
+exportgraphics(gcf, [fig_dir filesep() '09.1_pcomm_by_methods.eps'], 'ContentType', 'vector')
+
+% Alt Figure 6 - communucation probability by comm prob
+makeFig_byParam(pcomm_cos_dist, pcomm_opts, pcomm_alpha, 'Metrics', 'Cosine Distance', 'SNR')
+saveas(gcf, [fig_dir filesep() '09.2_methods_by_noise.jpg'])
+exportgraphics(gcf, [fig_dir filesep() '09.2_methods_by_noise.eps'], 'ContentType', 'vector')
+
+%% STATS
+
+clc
+cprintf('red', 'Noise by Cosine Distance \n')
+doStats(pcomm_cos_dist, pcomm_opts, pcomm_alpha, 'SNR')
 
 %% ========================================================================
 
@@ -298,7 +372,7 @@ saveas(gcf, [fig_dir filesep() '07.1_node_dropping.jpg'])
 exportgraphics(gcf, [fig_dir filesep() '07.1_node_dropping.eps'], 'ContentType', 'vector')
 
 pcts = ["100%","90%","80%","70%","60%","50%","40%","30%","20%","10%"];
-makeFig_nodeDrop_param(nodes_cos_dist, pcts, ntwkCov_alpha, 'Metrics', 'Cosine Distance')
+makeFig_nodeDrop_param(nodes_cos_dist, pcts, ntwkCov_alpha, '', 'Cosine Distance')
 saveas(gcf, [fig_dir filesep() '07.2_node_dropping_params.jpg'])
 exportgraphics(gcf, [fig_dir filesep() '07.2_node_dropping_params.eps'], 'ContentType', 'vector')
 
@@ -315,7 +389,7 @@ for i = 1:10
     [p, tbl, stats] = kruskalwallis(squeeze(nodes_cos_dist(4,:,:,i))); %, pcts);
     disp(labels(i))
 
-    if p < alpha
+    if p < ntwkCov_alpha
         results = multcompare(stats);
         tbl2 = array2table(results,"VariableNames", ...
             ["Group A","Group B","Lower Limit","A-B","Upper Limit","P-value"]);
@@ -332,7 +406,7 @@ for i = 1:10
     [p, tbl, stats] = kruskalwallis(squeeze(nodes_cos_dist(4,:,i,:))); %, pcts);
     disp([num2str(100 - (i-1)*10) ' pct covered'])
 
-    if p < alpha
+    if p < ntwkCov_alpha
         results = multcompare(stats, 'CriticalValueType', 'dunn-sidak', 'Alpha', ntwkCov_alpha);
         tbl2 = array2table(results,"VariableNames", ...
             ["Group A","Group B","Lower Limit","A-B","Upper Limit","P-value"]);
@@ -348,9 +422,9 @@ end
 for i = 1:10
     [p, tbl, stats] = kruskalwallis(squeeze(nodes_roc_aucs(4,:,:,i))); %, pcts);
     disp(labels(i))
-    disp([num2str(100 - (i-1)*10) ' pct covered'])
+    %disp([num2str(100 - (i-1)*10) ' pct covered'])
 
-    if p < alpha
+    if p < ntwkCov_alpha
         results = multcompare(stats);
         tbl2 = array2table(results,"VariableNames", ...
             ["Group A","Group B","Lower Limit","A-B","Upper Limit","P-value"]);
@@ -367,7 +441,7 @@ for i = 1:10
     [p, tbl, stats] = kruskalwallis(squeeze(nodes_roc_aucs(4,:,i,:))); %, pcts);
     disp([num2str(100 - (i-1)*10) ' pct covered'])
 
-    if p < alpha
+    if p < ntwkCov_alpha
         results = multcompare(stats);
         tbl2 = array2table(results,"VariableNames", ...
             ["Group A","Group B","Lower Limit","A-B","Upper Limit","P-value"]);
@@ -413,8 +487,10 @@ for j = 1:size(nodes_opts,2)
 
     xticks(1:6)%size(nodes_runtimes,4))
     xticklabels(labels (1:6))
-    ylabel('Runtime (s)')
-    xlabel('Metrics')
+    if j == 1
+        ylabel('Runtime (s)')
+    end
+    %xlabel('Metrics')
     title([num2str(nodes_opts(j)) ' Nodes'])
     ax = gca;
     ax.FontSize=12;
@@ -513,6 +589,9 @@ function makeFig_byMetric(data,opts, alpha, xAxLabel, yAxLabel)
     
         figure(1)
         for j = 1:size(opts,2)
+            if all(isnan(squeeze(data(j,:,1,i)))) % edit 6/16/25 KED 
+                continue
+            end
             subplot(2,5,i)
             vp = Violin({round(squeeze(data(j,:,1,i)),4)'}, j, 'MarkerSize', 10, 'ViolinColor', {colors(i,:)});  
         end

@@ -48,7 +48,7 @@ echo "Fairshare Resources will be pulled from ${usr_acct}"
 
 # STEP 1: specify selection options
 
-sels=('nodes') # 'time_points' 'noise' 'rereference')
+sels=('nodes' 'time_points' 'noise' 'comm_prob') # 'rereference'
 
 #--------------------------------------------------------------------------------------------------------------------
 
@@ -64,6 +64,8 @@ for sel in ${sels[@]}; do
 		opts=('0.01' '0.05' '0.1' '0.5' '1' '10' '5' '50') #'0.001' '0.005'
 	elif [[ ${sel} == 'rereference' ]]; then
 		opts=('cmn_avg' 'hrdwr_ref' 'random')
+    elif [[ ${sel} == 'comm_prob' ]]; then
+        opts=('0.2' '0.4' '0.6' '0.8' '1')
 	fi
 
 #--------------------------------------------------------------------------------------------------------------------

@@ -48,13 +48,13 @@ echo "Fairshare Resources will be pulled from ${usr_acct}"
 
 # STEP 1: specify selection options
 
-sels=('nodes' 'time_points' 'noise' 'rereference')
+sels=('nodes' 'time_points' 'noise' 'comm_prob') #  'rereference'
 
 #--------------------------------------------------------------------------------------------------------------------
 
 # STEP 2: iterate through slections and specify folder options for each selection
 
-for sel in ${sels}; do # ${sels[@]}; do
+for sel in ${sels[@]}; do # ${sels[@]}; do
 	# set folders for each sel
 	if [[ ${sel} == 'nodes' ]]; then
 		opts=('10' '20' '30' '50' '65') # '80')
@@ -64,6 +64,8 @@ for sel in ${sels}; do # ${sels[@]}; do
 		opts=('0.01' '0.05' '0.1' '0.5' '1' '5' '10' '50')  # '0.001' '0.005' 
 	elif [[ ${sel} == 'rereference' ]]; then
 		opts=('cmn_avg' 'hrdwr_ref' 'random')
+    elif [[ ${sel} == 'comm_prob' ]]; then
+        opts=('0.05' '0.1' '0.2' '0.4' '0.6' '0.8' '1')
 	fi
 
 #--------------------------------------------------------------------------------------------------------------------
